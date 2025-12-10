@@ -1,30 +1,26 @@
-// src/components/IIIFViewer/IIIFViewer.jsx
-
-import React, { useEffect, useRef } from 'react';
-import OpenSeadragon from 'openseadragon';
+import React from 'react';
+import OpenSeadragonViewer from 'openseadragon';
 import './IIIFViewer.css';
 
-const IIIFViewer = ({ infoJsonUrl }) => {
-  const viewerRef = useRef(null);
+const IIIFViewer = ({ tileSource, onClose }) => {
+  if (!tileSource) return null;
 
-  useEffect(() => {
-    let viewer;
-    if (viewerRef.current) {
-      viewer = OpenSeadragon({
-        element: viewerRef.current,
-        prefixUrl: 'https://openseadragon.github.io/openseadragon/images/',
-        tileSources: infoJsonUrl,
-        sequenceMode: false,
-        showNavigator: true,
-        navigatorPosition: 'BOTTOM_RIGHT',
-      });
-    }
-    return () => {
-      if (viewer) viewer.destroy();
-    };
-  }, [infoJsonUrl]);
-
-  return <div ref={viewerRef} style={{ width: '100%', height: '100%' }} />;
+  return (
+    <div className="iiif-viewer-overlay" onClick={onClose}>
+      <div className="iiif-viewer-content" onClick={(e) => e.stopPropagation()}>
+        <button className="iiif-close-button" onClick={onClose}>×</button>
+        <OpenSeadragonViewer
+          options={{
+            id: 'openseadragon-viewer',
+            prefixUrl: 'https://openseadragon.github.io/openseadragon/images/',
+            tileSources: [tileSource],
+            animationTime: 0.5,
+            showNavigator: true,
+          }}
+        />
+      </div>
+    </div>
+  );
 };
 
 export default IIIFViewer;

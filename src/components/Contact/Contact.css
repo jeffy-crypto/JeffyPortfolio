@@ -52,3 +52,42 @@ body.light-mode .contact-form button {
   color: #cccccc; /* Change color on hover */
   transform: scale(1.2); /* Make the icon slightly larger on hover */
 }
+.submit-btn {
+  /* Add your existing button styles here (padding, color, background, etc.) */
+  padding: 0.8rem 1.5rem;
+  border: none;
+  background-color: #007bff;
+  color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  min-height: 48px; /* Give it a fixed height to prevent layout shift */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+.submit-btn:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+}
+
+/* The loading spinner */
+.loader {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- The Chat Window --- */

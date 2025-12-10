@@ -130,14 +130,16 @@ function App() {
       
       <ArtUploader />
       <AdminTools />
-      <FloatingButtons />
       <Footer />
+      <FloatingButtons />
 
       <label className="neumorphic-toggle-switch">
         <ThemeToggle 
         isDarkMode={isDarkMode} 
         onToggle={toggleTheme} 
       />
+
+      
       
         {/* The rest of your toggle switch HTML (track, thumb, etc.) */}
       </label>

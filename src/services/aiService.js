@@ -1,24 +1,25 @@
 // src/services/aiService.js
-
-// We can now use a simple fetch or axios call.
 import axios from 'axios';
 
-// The endpoint for our new backend function.
-// When you run `npm run dev`, Vite will correctly proxy this request.
-const apiEndpoint = '/api/gemini';
+// --- PASTE YOUR N8N PRODUCTION WEBHOOK URL HERE ---
+const n8nWebhookUrl = 'https://jefersonpangan.app.n8n.cloud/webhook/d5cca8b5-0ef8-48bf-b3c0-5392de15bc19/chat';
 
 export const runChat = async (prompt) => {
   try {
-    // Make a POST request to our OWN backend, not Google's.
-    const response = await axios.post(apiEndpoint, {
-      prompt: prompt // Send the user's message in the request body
+    const response = await axios.post(n8nWebhookUrl, {
+      prompt: prompt
     });
+    
+    // The AI Agent returns its response in a 'text' field
+    const botMessage = response.data.text;
 
-    // The backend will return a JSON object like { reply: "..." }
-    return response.data.reply;
+    if (botMessage === undefined) {
+      throw new Error("The 'text' field was not found in the n8n response.");
+    }
+    return botMessage;
 
   } catch (error) {
-    console.error("Error calling backend service:", error.response ? error.response.data : error.message);
-    return "Sorry, my connection to the server failed. Please try again.";
+    console.error("Error calling n8n workflow:", error.response ? error.response.data : error.message);
+    return "Sorry, my connection to the workflow server failed. Please try again.";
   }
 };
