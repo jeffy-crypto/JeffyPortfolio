@@ -1,17 +1,6 @@
 import { Camera, Mesh, Box, Program, Renderer, Texture, Transform } from 'ogl';
 
-// Update these imports to match EXACTLY the files you have
-import img1 from '../../assets/images/1.png';
-import img2 from '../../assets/images/2.png';
-import img4 from '../../assets/images/4.png';
-import img5 from '../../assets/images/5.png';
-import img6 from '../../assets/images/6.png';
-import img7 from '../../assets/images/7.png';
-import img8 from '../../assets/images/8.png';
-import img9 from '../../assets/images/9.png';
-import img10 from '../../assets/images/10.png';
-import img11 from '../../assets/images/11.png';
-
+// Helper function for linear interpolation
 const lerp = (p1, p2, t) => p1 + (p2 - p1) * t;
 
 class Media {
@@ -33,6 +22,11 @@ class Media {
             this.createMesh();
 
             const img = new Image();
+            
+            // --- IMPORTANT: Keeps the fix for loading images from Supabase ---
+            img.crossOrigin = "anonymous"; 
+            // ---------------------------------------------------------------
+
             img.src = this.image;
             img.onload = () => {
                 this.program.uniforms.tMap.value.image = img;
@@ -114,10 +108,13 @@ class Media {
     update(scroll, direction) {
         if (this.x === undefined) return;
         this.plane.position.x = this.x - scroll.current - this.extra;
+        
+        // Logic for infinite scrolling
         const planeOffset = this.plane.scale.x / 2;
         const viewportOffset = this.viewport.width / 2;
         const isBefore = this.plane.position.x + planeOffset < -viewportOffset;
         const isAfter = this.plane.position.x - planeOffset > viewportOffset;
+        
         if (direction === 'right' && isBefore) {
             this.extra -= this.widthTotal;
         }
@@ -144,8 +141,10 @@ class Media {
 }
 
 class App {
-    constructor(container) {
+    constructor(container, callback, images = [], imageKeys = []) {
         this.container = container;
+        this.callback = callback;
+        this.imageKeys = imageKeys;
         this.scroll = { ease: 0.05, current: 0, target: 0, last: 0 };
         this.isDown = false;
         this.areMediasLoaded = false;
@@ -161,7 +160,7 @@ class App {
         this.destroy = this.destroy.bind(this);
 
         this.onResize();
-        this.createMedias();
+        this.createMedias(images);
         this.raf = requestAnimationFrame(this.update);
     }
     
@@ -182,22 +181,21 @@ class App {
         this.planeGeometry = new Box(this.gl, { width: 1, height: 1, depth: 0.05 });
     }
 
-    createMedias() {
-        const galleryItems = [
-            { image: img1 }, { image: img2 }, { image: img4 },
-            { image: img5 }, { image: img6 }, { image: img7 },
-            { image: img8 }, { image: img9 }, { image: img10 }, { image: img11 }
-        ];
-        this.mediasImages = [...galleryItems, ...galleryItems];
-        this.medias = this.mediasImages.map((data, index) =>
+    createMedias(images) {
+        // --- FIXED: Do not duplicate images ---
+        // Old code was: const galleryItems = [...images, ...images];
+        const galleryItems = images; 
+        
+        this.mediasImages = galleryItems;
+        this.medias = galleryItems.map((imageUrl, index) =>
             new Media({
-                geometry: this.planeGeometry, gl: this.gl, image: data.image,
+                geometry: this.planeGeometry, gl: this.gl, image: imageUrl,
                 index, scene: this.scene,
-                screen: this.screen, viewport: this.viewport, 
+                screen: this.screen, viewport: this.viewport,
                 radius: 0.3
             })
         );
-        
+
         const loadPromises = this.medias.map(media => media.loaded);
         Promise.all(loadPromises).then(() => {
             this.areMediasLoaded = true;
@@ -264,6 +262,30 @@ class App {
         window.addEventListener('mouseup', this.onTouchUp.bind(this), { passive: true });
         window.addEventListener('wheel', this.onWheel.bind(this), { passive: true });
         window.addEventListener('resize', this.onResize);
+        this.gl.canvas.addEventListener('click', this.onClick.bind(this));
+    }
+
+    onClick(e) {
+        if (!this.areMediasLoaded || !this.callback) return;
+
+        const rect = this.gl.canvas.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 2 - 1; 
+        const y = -((e.clientY - rect.top) / rect.height) * 2 + 1; 
+
+        const worldX = (x * this.viewport.width) / 2;
+        const worldY = (y * this.viewport.height) / 2;
+
+        for (let media of this.medias) {
+            if (worldX >= media.x - media.plane.scale.x / 2 &&
+                worldX <= media.x + media.plane.scale.x / 2 &&
+                worldY >= -media.plane.scale.y / 2 &&
+                worldY <= media.plane.scale.y / 2) {
+                const index = media.index % this.imageKeys.length;
+                const key = this.imageKeys[index];
+                this.callback(key);
+                break;
+            }
+        }
     }
 
     destroy() {
@@ -275,4 +297,4 @@ class App {
     }
 }
 
-export default (container) => new App(container);
+export default (container, callback, images = [], imageKeys = []) => new App(container, callback, images, imageKeys);

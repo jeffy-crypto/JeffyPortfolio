@@ -1,5 +1,6 @@
+// src/components/Admin/AdminPanel.jsx
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../supabaseClient'; // Adjust path if needed
+import { supabase } from '../../supabaseClient';
 
 export default function AdminPanel({ isOpen, onClose }) {
   const [session, setSession] = useState(null);
@@ -10,7 +11,6 @@ export default function AdminPanel({ isOpen, onClose }) {
   const [title, setTitle] = useState('');
   const [file, setFile] = useState(null);
 
-  // 1. Check Session & Fetch Data on Load
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -25,7 +25,6 @@ export default function AdminPanel({ isOpen, onClose }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  // 2. Fetch Existing Artworks
   const fetchArtworks = async () => {
     const { data, error } = await supabase
       .from('artworks')
@@ -35,7 +34,6 @@ export default function AdminPanel({ isOpen, onClose }) {
     if (!error) setArtworks(data);
   };
 
-  // 3. Login Logic
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -47,7 +45,6 @@ export default function AdminPanel({ isOpen, onClose }) {
     if (error) alert(error.message);
   };
 
-  // 4. Upload Logic
   const handleUpload = async (e) => {
     e.preventDefault();
     if (!file || !title) return alert('Please select a file and enter a title.');
@@ -55,21 +52,22 @@ export default function AdminPanel({ isOpen, onClose }) {
     try {
       setLoading(true);
       
-      // A. Upload to Storage
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}.${fileExt}`;
+      
+      // Upload
       const { error: uploadError } = await supabase.storage
         .from('portfolio-images')
         .upload(fileName, file);
 
       if (uploadError) throw uploadError;
 
-      // B. Get Public URL
+      // Get URL
       const { data: { publicUrl } } = supabase.storage
         .from('portfolio-images')
         .getPublicUrl(fileName);
 
-      // C. Insert into DB
+      // Save to DB
       const { error: dbError } = await supabase
         .from('artworks')
         .insert([{ title, image_url: publicUrl }]);
@@ -79,10 +77,10 @@ export default function AdminPanel({ isOpen, onClose }) {
       alert('Uploaded successfully!');
       setTitle('');
       setFile(null);
-      fetchArtworks(); // Refresh list
+      fetchArtworks(); // Update local list
       
-      // Optional: Refresh main page logic if needed
-      // window.location.reload(); 
+      // Reload page to refresh the gallery (works simplest for this setup)
+      window.location.reload(); 
 
     } catch (error) {
       alert('Error: ' + error.message);
@@ -91,22 +89,20 @@ export default function AdminPanel({ isOpen, onClose }) {
     }
   };
 
-  // 5. Delete Logic
   const handleDelete = async (id, imageUrl) => {
     if (!confirm('Are you sure you want to delete this?')) return;
 
     try {
-      // A. Delete from Storage (Extract filename from URL)
       const fileName = imageUrl.split('/').pop();
       await supabase.storage.from('portfolio-images').remove([fileName]);
 
-      // B. Delete from DB
       const { error } = await supabase.from('artworks').delete().eq('id', id);
 
       if (error) throw error;
-      
-      // Remove from local state immediately
       setArtworks(artworks.filter(item => item.id !== id));
+      
+      // Reload page to refresh the gallery
+      window.location.reload();
 
     } catch (error) {
       console.error('Error deleting:', error.message);
@@ -124,7 +120,6 @@ export default function AdminPanel({ isOpen, onClose }) {
         </div>
 
         {!session ? (
-          // --- LOGIN FORM ---
           <form onSubmit={handleLogin} style={styles.form}>
             <input name="email" type="email" placeholder="Email" style={styles.input} required />
             <input name="password" type="password" placeholder="Password" style={styles.input} required />
@@ -133,10 +128,7 @@ export default function AdminPanel({ isOpen, onClose }) {
             </button>
           </form>
         ) : (
-          // --- DASHBOARD ---
           <div style={styles.dashboard}>
-            
-            {/* Upload Section */}
             <div style={styles.section}>
               <h3>Add New Artwork</h3>
               <form onSubmit={handleUpload} style={styles.form}>
@@ -161,7 +153,6 @@ export default function AdminPanel({ isOpen, onClose }) {
 
             <hr style={{width: '100%', borderColor: '#444', margin: '20px 0'}}/>
 
-            {/* List Section */}
             <div style={styles.section}>
               <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
                 <h3>Gallery Items ({artworks.length})</h3>
@@ -180,10 +171,8 @@ export default function AdminPanel({ isOpen, onClose }) {
                     </div>
                   </div>
                 ))}
-                {artworks.length === 0 && <p style={{color: '#888'}}>No artworks found.</p>}
               </div>
             </div>
-
           </div>
         )}
       </div>
@@ -191,7 +180,6 @@ export default function AdminPanel({ isOpen, onClose }) {
   );
 }
 
-// --- STYLES (Dark Mode Optimized) ---
 const styles = {
   overlay: {
     position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
