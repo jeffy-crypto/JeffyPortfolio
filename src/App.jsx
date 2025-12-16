@@ -151,10 +151,6 @@ function Home() {
   );
 }
 
-// ----------------------------------------------------------------------
-// 2. MAIN APP COMPONENT (ROUTER)
-//    This handles the navigation between the Main Site and Admin Tools
-// ----------------------------------------------------------------------
 function App() {
   return (
     <Router>
