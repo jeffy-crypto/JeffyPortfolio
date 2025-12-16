@@ -1,55 +1,95 @@
-/* src/components/ArtUploader/ArtUploader.css */
 .uploader-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1999; /* Below choice-modal but above most other things */
-    cursor: pointer;
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(5px);
+  display: flex; justify-content: center; align-items: center;
+  z-index: 10000;
 }
 
+.uploader-overlay, 
+.uploader-overlay * {
+  cursor: auto !important; /* Overrides the 'cursor: none' from the main site */
+}
+
+.uploader-overlay button, 
+.uploader-close-btn,
+.copy-btn {
+  cursor: pointer !important; /* Ensures buttons still look clickable */
+}
+
+.uploader-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+
+}
 .uploader-content {
-    cursor: default;
-    max-width: 800px;
-    width: 90%;
-    margin: 1rem;
-    padding: 2rem;
-    background-color: #2c2c2c;
-    color: #fff;
-    border-radius: 15px;
-    position: relative;
-    max-height: 90vh;
-    overflow-y: auto;
+  background: #1a1a1a;
+  padding: 30px;
+  border-radius: 15px;
+  width: 90%; max-width: 500px;
+  color: white;
+  border: 1px solid #333;
+  position: relative;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
 }
 
 .uploader-close-btn {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    background: none;
-    border: none;
-    color: #888;
-    font-size: 2rem;
-    cursor: pointer;
-    transition: color 0.2s;
-}
-.uploader-close-btn:hover {
-    color: #fff;
+  position: absolute; top: 15px; right: 15px;
+  background: none; border: none; color: #888; font-size: 24px; cursor: pointer;
 }
 
-.input-group { display: flex; gap: 1rem; margin: 1.5rem 0; }
-.input-group input { flex-grow: 1; padding: 0.75rem; border-radius: 8px; border: 1px solid #555; background-color: #333; color: #fff; font-size: 1rem; }
-.input-group button { padding: 0.75rem 1.5rem; border: none; border-radius: 8px; background-color: #007bff; color: #fff; font-weight: bold; cursor: pointer; }
-.results-container { margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #555; }
-.result-section { margin-bottom: 2rem; }
-.tags-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
-.tag { background-color: #555; padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.9rem; }
-.palette { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
-.color-swatch { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff; }
-pre { background-color: #1e1e1e; padding: 1rem; border-radius: 8px; white-space: pre-wrap; word-wrap: break-word; }
-.error-message { color: #ff6b6b; }
+.input-group {
+  display: flex; gap: 10px; margin: 20px 0;
+}
+
+.input-group input {
+  flex: 1; padding: 10px; border-radius: 5px; border: 1px solid #444;
+  background: #2a2a2a; color: white;
+}
+
+.input-group button {
+  padding: 10px 20px; background: #00d4ff; border: none;
+  border-radius: 5px; color: #000; font-weight: bold; cursor: pointer;
+}
+
+.input-group button:disabled {
+  background: #555; cursor: not-allowed;
+}
+
+.error-message { color: #ff4444; font-size: 0.9rem; }
+
+/* Results */
+.result-section { margin-top: 20px; padding-top: 15px; border-top: 1px solid #333; }
+.result-section h4 { margin: 0 0 10px 0; font-size: 0.9rem; color: #aaa; text-transform: uppercase; }
+
+/* Palette */
+.palette { display: flex; gap: 10px; margin-bottom: 10px; }
+.color-swatch {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 2px solid #fff;
+  position: relative;
+  transition: transform 0.2s;
+}
+.color-swatch:hover { transform: scale(1.1); }
+.swatch-text {
+    position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%);
+    font-size: 8px; opacity: 0; transition: opacity 0.2s;
+}
+.color-swatch:hover .swatch-text { opacity: 1; }
+
+/* Tags */
+.tags-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.tag { background: #333; padding: 4px 10px; border-radius: 15px; font-size: 0.8rem; border: 1px solid #444; }
+
+/* Code Snippet */
+.code-snippet {
+    background: #000; padding: 10px; border-radius: 5px;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.code-snippet pre { margin: 0; font-family: monospace; font-size: 0.8rem; color: #00d4ff; overflow-x: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 300px; }
+.copy-btn { background: #333; color: #fff; border: none; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; cursor: pointer; }
+.copy-btn:active { background: #fff; color: #000; }
+
+.fade-in { animation: fadeIn 0.5s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }

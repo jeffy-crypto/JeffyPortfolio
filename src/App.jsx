@@ -1,5 +1,8 @@
+// src/App.jsx
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
+// Component Imports
 import Header from './components/Header/Header';
 import NavBar from './components/NavBar/NavBar';
 import Content from './components/Content/Content';
@@ -10,21 +13,27 @@ import Contact from './components/Contact/Contact';
 import Footer from './components/Footer/Footer';
 import ThemeToggle from './components/ThemeToggle/ThemeToggle';
 import ArtUploader from './components/ArtUploader/ArtUploader.jsx';
-import AdminTools from './components/AdminTools/AdminTools.jsx';
 import FloatingButtons from './components/FloatingButtons/FloatingButtons.jsx';
+
+// The new Admin Page
+import AdminTools from './components/AdminTools/AdminTools.jsx';
+
 import './index.css';
 
+// ----------------------------------------------------------------------
+// 1. HOME COMPONENT
+//    This contains all the logic for your main portfolio page.
+//    (Cursor effects, scroll observers, etc. are moved here so they don't affect the Admin page)
+// ----------------------------------------------------------------------
+function Home() {
+  const [isDarkMode, setIsDarkMode] = useState(true);
 
-function App() {
-  const [isDarkMode, setIsDarkMode] = useState(true); // Start in dark mode to match original
-
-  // Toggle theme and apply class to body
+  // Toggle theme class
   useEffect(() => {
-    // We use isDarkMode for the toggle, but the CSS uses light-mode for overrides
     document.body.classList.toggle('light-mode', !isDarkMode);
   }, [isDarkMode]);
-  
-  // Intersection Observer for scroll animations
+
+  // Scroll Animations
   useEffect(() => {
     const animatedElements = document.querySelectorAll('.section');
     const observer = new IntersectionObserver(
@@ -40,7 +49,7 @@ function App() {
     return () => animatedElements.forEach((el) => observer.unobserve(el));
   }, []);
 
-  // RESTORED: Custom cursor with reveal effect
+  // Cursor Effects
   useEffect(() => {
     const cursor = document.querySelector('.cursor');
     const bgb1Overlay = document.getElementById('bgb1-cursor-overlay');
@@ -54,9 +63,10 @@ function App() {
         cursor.style.left = `${e.clientX}px`;
         
         if (revealActive) {
-            const cursorRadius = 75; // Grow size
-            bgb1Overlay.style.maskImage = `radial-gradient(circle ${cursorRadius}px at ${e.clientX}px ${e.clientY}px, white 99%, transparent 100%)`;
-            bgb1Overlay.style.webkitMaskImage = `radial-gradient(circle ${cursorRadius}px at ${e.clientX}px ${e.clientY}px, white 99%, transparent 100%)`;
+            const cursorRadius = 75; 
+            const mask = `radial-gradient(circle ${cursorRadius}px at ${e.clientX}px ${e.clientY}px, white 99%, transparent 100%)`;
+            bgb1Overlay.style.maskImage = mask;
+            bgb1Overlay.style.webkitMaskImage = mask;
         }
     };
 
@@ -67,10 +77,10 @@ function App() {
             cursor.classList.add('cursor-grow');
             bgb1Overlay.style.display = 'block';
             
-            // Initial mask application
             const cursorRadius = 75;
-            bgb1Overlay.style.maskImage = `radial-gradient(circle ${cursorRadius}px at ${e.clientX}px ${e.clientY}px, white 99%, transparent 100%)`;
-            bgb1Overlay.style.webkitMaskImage = `radial-gradient(circle ${cursorRadius}px at ${e.clientX}px ${e.clientY}px, white 99%, transparent 100%)`;
+            const mask = `radial-gradient(circle ${cursorRadius}px at ${e.clientX}px ${e.clientY}px, white 99%, transparent 100%)`;
+            bgb1Overlay.style.maskImage = mask;
+            bgb1Overlay.style.webkitMaskImage = mask;
         }
     };
     
@@ -82,7 +92,6 @@ function App() {
         bgb1Overlay.style.webkitMaskImage = 'none';
     };
 
-    // Grow effect for hoverable elements
     const handleMouseEnter = () => cursor.classList.add('cursor-grow');
     const handleMouseLeave = () => { if(!revealActive) cursor.classList.remove('cursor-grow'); };
     const hoverableElements = document.querySelectorAll('a, button, input, textarea, .neumorphic-toggle-switch');
@@ -110,10 +119,8 @@ function App() {
 
   return (
     <>
-      {/* These two elements are crucial for the cursor effects */}
       <div id="bgb1-cursor-overlay"></div>
       <div className="cursor"></div>
-
 
       <NavBar isDarkMode={isDarkMode} />
       <Header isDarkMode={isDarkMode} />
@@ -128,25 +135,38 @@ function App() {
         </div>
       </main>
       
+      {/* Assuming ArtUploader is for public submissions or hidden in footer */}
       <ArtUploader />
-      <AdminTools />
+      
       <Footer />
       <FloatingButtons />
 
       <label className="neumorphic-toggle-switch">
         <ThemeToggle 
-        isDarkMode={isDarkMode} 
-        onToggle={toggleTheme} 
-      />
-
-      
-      
-        {/* The rest of your toggle switch HTML (track, thumb, etc.) */}
+          isDarkMode={isDarkMode} 
+          onToggle={toggleTheme} 
+        />
       </label>
     </>
   );
-  
 }
 
+// ----------------------------------------------------------------------
+// 2. MAIN APP COMPONENT (ROUTER)
+//    This handles the navigation between the Main Site and Admin Tools
+// ----------------------------------------------------------------------
+function App() {
+  return (
+    <Router>
+      <Routes>
+        {/* Main Portfolio Route (http://localhost:3000/) */}
+        <Route path="/" element={<Home />} />
+        
+        {/* Admin Route (http://localhost:3000/admin) */}
+        <Route path="/admin" element={<AdminTools />} />
+      </Routes>
+    </Router>
+  );
+}
 
 export default App;

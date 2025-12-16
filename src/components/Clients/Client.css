@@ -1,60 +1,210 @@
+/* src/components/Clients/Client.css */
 
+/* --- CRITICAL FIX: FORCE CURSOR VISIBILITY --- */
+/* This restores the default mouse when the modal is open */
+.review-modal-overlay,
+.review-modal-overlay * {
+    cursor: auto !important;
+}
+
+/* Ensure buttons always show the hand pointer */
+.review-modal button,
+.close-modal,
+.slider-arrow,
+.add-review-btn {
+    cursor: pointer !important;
+}
+
+/* 1. Center the Section Title */
+.center-title {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+/* 2. Slider Layout */
 .review-slider-container {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 2rem;
-    max-width: 800px;
-    margin: 0 auto;
+    justify-content: center; /* Horizontally centers the slider */
+    gap: 1rem; /* Reduced gap slightly to fit better on smaller screens */
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto; /* Centers the container within the page */
+    padding: 0 20px; /* Prevents touching edges on mobile */
+    box-sizing: border-box;
 }
 
+/* 3. The Stage (Holds the Card) */
 .card-stage {
     width: 400px;
     height: 400px;
-    perspective: 1000px; /* The 3D perspective is now on this parent container */
+    perspective: 1000px;
+    /* Responsive fix: shrink on mobile if needed */
+    max-width: 100%; 
+    flex-shrink: 0;
 }
 
-/* --- Arrow Button Styles --- */
+/* --- Center Text Inside the Card Overlay --- */
+.overlay-quote,
+.overlay-author,
+.star-rating-display {
+    text-align: center;
+    width: 100%;
+    display: block;
+}
+
+.overlay-quote {
+    margin-top: 10px;
+    font-style: italic;
+    line-height: 1.5;
+}
+
+.overlay-author {
+    margin-top: 15px;
+    font-weight: bold;
+    color: #00d4ff; /* Adds a nice accent color to the author */
+}
+
+/* 4. Button Container */
+.add-review-container {
+    text-align: center;
+    margin-top: 3rem;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.add-review-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    padding: 10px 24px;
+    border-radius: 30px;
+    cursor: pointer !important; /* Force pointer */
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.add-review-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #fff;
+    transform: translateY(-2px);
+}
+
+/* 5. Star Styles */
+.star-rating-display {
+    margin-bottom: 10px;
+    text-align: center;
+    display: flex;       /* Ensures stars sit in a row */
+    justify-content: center; /* Centers the row of stars */
+    gap: 5px;
+}
+
+.star {
+    color: #555;
+    font-size: 1.2rem;
+    transition: color 0.2s;
+}
+
+.star.filled {
+    color: #ffd700;
+}
+
+/* 6. Arrows */
 .slider-arrow {
-    background-color: rgba(255, 255, 255, 0);
-    border: 1px solid rgba(255, 255, 255, 0);
+    background-color: transparent;
+    border: 1px solid rgba(255,255,255,0.1); /* Subtle border helps visibility */
     border-radius: 50%;
     width: 50px;
     height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    flex-shrink: 0;
-}
-.slider-arrow:hover {
-    background-color: rgba(255, 255, 255, 0);
-}
-.slider-arrow svg {
-    width: 24px;
-    height: 24px;
-    fill: #fff;
+    cursor: pointer !important; /* Force pointer */
+    flex-shrink: 0; /* Prevents arrow from squishing */
+    z-index: 10;
 }
 
-/* --- Light Mode Overrides --- */
-body.light-mode .slider-arrow {
-    background-color: rgba(0, 0, 0, 0);
-    border-color: rgba(0, 0, 0, 0);
+.slider-arrow:hover { 
+    background-color: rgba(255,255,255,0.1); 
+    border-color: #fff;
 }
-body.light-mode .slider-arrow:hover {
-    background-color: rgba(0, 0, 0, 0);
-}
-body.light-mode .slider-arrow svg {
-    fill: #000;
+.slider-arrow svg { 
+    width: 24px; 
+    height: 24px; 
+    fill: #fff; 
 }
 
-/* --- Animation for the card entering --- */
-@keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+/* 7. Modal Styles */
+.review-modal-overlay {
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100vw; 
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85); 
+    z-index: 99999; /* Ensure it's higher than navbar or anything else */
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    backdrop-filter: blur(5px);
+    cursor: auto !important; /* Force system cursor */
 }
-/* This animation is now applied directly to the card wrapper, which is correct */
-.review-card-wrapper {
-    animation: fadeIn 0.6s ease-out forwards;
+
+.review-modal {
+    background: #1a1a1a; padding: 30px; border-radius: 12px;
+    width: 90%; max-width: 400px; border: 1px solid #333; position: relative;
+    color: #fff;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    text-align: center; /* Centers modal content */
+    cursor: auto !important; /* Force system cursor */
+}
+
+.review-modal h3 { margin-top: 0; margin-bottom: 20px; }
+
+.modal-star-input {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Centers stars in the modal */
+    gap: 5px;
+    margin-bottom: 20px;
+}
+
+.modal-star-input .star {
+    cursor: pointer !important; /* Stars need pointers */
+}
+
+.review-modal input, .review-modal textarea {
+    width: 100%; background: #2a2a2a; border: 1px solid #444;
+    color: white; padding: 12px; margin-bottom: 15px; border-radius: 6px;
+    box-sizing: border-box; /* Fixes padding width issues */
+    cursor: text !important; /* Ensure text cursor appears */
+}
+
+.review-modal button[type="submit"] {
+    width: 100%; background: #fff; color: #000; border: none;
+    padding: 12px; border-radius: 6px; font-weight: bold; 
+    cursor: pointer !important;
+}
+
+.close-modal {
+    position: absolute; top: 10px; right: 15px; background: none;
+    border: none; color: #888; font-size: 24px; 
+    cursor: pointer !important;
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 600px) {
+    .review-slider-container {
+        flex-direction: column; /* Stack arrows and card on mobile */
+        gap: 10px;
+    }
+    .card-stage {
+        width: 300px; /* Smaller card on mobile */
+        height: 300px;
+    }
+    .slider-arrow {
+        transform: rotate(90deg); /* Optional: Rotate arrows for vertical stacking */
+        border: none;
+    }
 }
